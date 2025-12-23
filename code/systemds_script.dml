@@ -1,0 +1,16 @@
+# 定义数据读取格式
+fmt = "csv";
+
+# 读取矩阵 A 和 B
+# header=FALSE 表示没有标题行
+A = read($1, format=fmt, header=FALSE);
+B = read($2, format=fmt, header=FALSE);
+
+# 转换为矩阵对象 (如果 CSV 只有 3 列 row,col,val，SystemDS 可能需要 metadata)
+# 为了简化，假设 SystemDS 能自动识别或你通过 metadata 文件指定了格式
+
+# 执行矩阵乘法 (SystemDS 内部会自动选择最佳的分布式算子 CP/SP)
+C = A %*% B;
+
+# 写入结果
+write(C, $3, format=fmt);
