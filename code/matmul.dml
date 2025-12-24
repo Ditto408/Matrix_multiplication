@@ -1,0 +1,24 @@
+# =======================================================
+# SystemML Matrix Multiplication (Optimized for Spark 1.6)
+# =======================================================
+
+# 1. 接收命名参数
+fileA = $Ain
+fileB = $Bin
+
+# 2. 读取 CSV
+RawA = read(fileA, format="csv", header=FALSE);
+RawB = read(fileB, format="csv", header=FALSE);
+
+# 3. 转换坐标格式 (COO) -> 稀疏矩阵
+# 索引修正: Python 是 0-based, SystemML 是 1-based, 所以行和列都要 +1
+# table(rows, cols, values, numRows, numCols)
+A = table(RawA[,1]+1, RawA[,2]+1, RawA[,3], 3000, 3000);
+B = table(RawB[,1]+1, RawB[,2]+1, RawB[,3], 3000, 3000);
+
+# 4. 执行矩阵乘法
+C = A %*% B;
+
+# 5. 触发 Action (计算总和)
+s = sum(C);
+print("SystemML Result Sum: " + s);
