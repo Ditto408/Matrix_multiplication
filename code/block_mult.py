@@ -92,7 +92,6 @@ def main(input_a, input_b, output_path):
     # === 修改处：使用函数式打印，更安全 ===
     print("### Block-Opt Execution Time: {:.4f} seconds".format(end_time - start_time))
     print("### Result Blocks Count: {}".format(count))
-
     sc.stop()
 
 if __name__ == "__main__":

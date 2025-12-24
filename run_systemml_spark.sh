@@ -46,8 +46,9 @@ if [ ! -f "$SPARK_SUBMIT" ]; then
 fi
 
 # --- 运行 SystemDS (SystemML) ---
-LOG_SDS="$LOG_DIR/systemds_$TS.log"
-echo "Running SystemDS Implementation..."
+
+LOG_SDS="$LOG_DIR/systemds_spark_$TS.log"
+echo "Running SystemDS Implementation (Forced Spark Mode)..."
 echo "Logs: $LOG_SDS"
 
 $SPARK_SUBMIT \
@@ -58,8 +59,10 @@ $SPARK_SUBMIT \
   --num-executors 4 \
   $SYSTEMML_JAR \
   -f $DML_CODE \
+  -exec spark \
   -nvargs Ain=$HDFS_A Bin=$HDFS_B \
   > $LOG_SDS 2>&1
+
 
 echo "✅ SystemDS 任务结束"
 

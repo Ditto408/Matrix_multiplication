@@ -45,23 +45,18 @@ if [ ! -f "$SPARK_SUBMIT" ]; then
     exit 1
 fi
 
-# --- 运行 SystemDS (SystemML) ---
-LOG_SDS="$LOG_DIR/systemds_$TS.log"
-echo "Running SystemDS Implementation..."
-echo "Logs: $LOG_SDS"
+# --- 运行 Spark Block Optimized ---
+LOG_SPARK="$LOG_DIR/spark_block_$TS.log"
+echo "Running Spark Block-Matrix Implementation..." 
+echo "Logs: $LOG_SPARK"
+hadoop fs -rm -r $HDFS_OUT/spark_block > /dev/null 2>&1
 
 $SPARK_SUBMIT \
-  --class org.apache.sysml.api.DMLScript \
   --master yarn-client \
   --executor-memory 1G \
   --driver-memory 1G \
   --num-executors 4 \
-  $SYSTEMML_JAR \
-  -f $DML_CODE \
-  -nvargs Ain=$HDFS_A Bin=$HDFS_B \
-  > $LOG_SDS 2>&1
+  $SPARK_CODE $HDFS_A $HDFS_B $HDFS_OUT/spark_block \
+  > $LOG_SPARK 2>&1
 
-echo "✅ SystemDS 任务结束"
-
-echo "========================================="
-echo "实验完成！请运行 python analyze_logs.py"
+echo "✅ Spark 任务结束 (请检查日志)"
