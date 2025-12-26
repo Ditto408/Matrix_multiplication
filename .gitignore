@@ -1,1 +1,6 @@
 /logs
+/results
+/SDS_logs
+/data
+/test
+.run_systemml_spark.sh.swp 

@@ -1,24 +1,22 @@
-# =======================================================
-# SystemML Matrix Multiplication (Optimized for Spark 1.6)
-# =======================================================
+# 1. 接收参数
+Ain = ifdef($Ain, " ")
+Bin = ifdef($Bin, " ")
+R = ifdef($rows, 2000)
+C = ifdef($cols, 2000)
 
-# 1. 接收命名参数
-fileA = $Ain
-fileB = $Bin
+# 2. 读取原始坐标数据 (N行 3列 的稠密矩阵)
+# format="csv", sep="," 专门用来处理逗号分隔的 (Row, Col, Value) 文件
+RawA = read(Ain, format="csv", header=FALSE, sep=",")
+RawB = read(Bin, format="csv", header=FALSE, sep=",")
 
-# 2. 读取 CSV
-RawA = read(fileA, format="csv", header=FALSE);
-RawB = read(fileB, format="csv", header=FALSE);
-
-# 3. 转换坐标格式 (COO) -> 稀疏矩阵
-# 索引修正: Python 是 0-based, SystemML 是 1-based, 所以行和列都要 +1
-# table(rows, cols, values, numRows, numCols)
-A = table(RawA[,1]+1, RawA[,2]+1, RawA[,3], 3000, 3000);
-B = table(RawB[,1]+1, RawB[,2]+1, RawB[,3], 3000, 3000);
+# 3. 使用 table() 重组为稀疏矩阵，并修正索引 (0 -> 1)
+# 这一步会产生 Shuffle (sp_table)，但为了正确性是值得的
+A = table(RawA[,1]+1, RawA[,2]+1, RawA[,3], R, C)
+B = table(RawB[,1]+1, RawB[,2]+1, RawB[,3], C, C)
 
 # 4. 执行矩阵乘法
-C = A %*% B;
+C_res = A %*% B
+s = sum(C_res)
 
-# 5. 触发 Action (计算总和)
-s = sum(C);
-print("SystemML Result Sum: " + s);
+# 5. 输出结果
+print("SystemML Result Sum: " + s)
