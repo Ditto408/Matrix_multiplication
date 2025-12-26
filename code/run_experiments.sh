@@ -62,9 +62,9 @@ echo "# scenario,method,time_sec,nnz" > "$RESULT_FILE"
 # Group A: 稠密矩阵 (Dense Matrix)
 # 对应生成脚本: run_gen 500/1000/2000 ... 1.0 "Dense_X"
 # ==========================================================
-echo "--- Starting Group A: Dense ---"
-# 可选算法: "naive" "broadcast" "block"
-for m in "block"; do
+echo "--- Starting Group A: Dense (Running: naive, broadcast, block) ---"
+
+for m in "naive" "broadcast" "block"; do
     for size in "500" "1000" "2000"; do
         SCENARIO="Dense_${size}"
         run_experiment "$SCENARIO" "$HDFS_ROOT/A_$SCENARIO" "$HDFS_ROOT/B_$SCENARIO" "$m" "$LOG_DIR/${SCENARIO}_${m}_$TS.log"
@@ -78,22 +78,31 @@ done
 echo "--- Starting Group B: Scale-up (sp=0.01) ---"
 Sparsity="0.01"
 
-# 可选算法: "block" (推荐大矩阵使用), "broadcast" (中等矩阵)
-for m in "block"; do
-    for size in "5000" "10000" "20000"; do
+# 1. 针对 5000 和 10000 规模：运行所有三种算法
+echo ">>> [Group B] Running sizes 5000 & 10000 with ALL algorithms..."
+for m in "naive" "broadcast" "block"; do
+    for size in "5000" "10000"; do
         SCENARIO="Scale_${Sparsity}_${size}"
         run_experiment "$SCENARIO" "$HDFS_ROOT/A_$SCENARIO" "$HDFS_ROOT/B_$SCENARIO" "$m" "$LOG_DIR/${SCENARIO}_${m}_$TS.log"
     done
 done
 
+# 2. 针对 20000 规模：仅运行 block 算法 (防止 naive/broadcast OOM)
+echo ">>> [Group B] Running size 20000 with BLOCK algorithm only..."
+m="block"
+size="20000"
+SCENARIO="Scale_${Sparsity}_${size}"
+run_experiment "$SCENARIO" "$HDFS_ROOT/A_$SCENARIO" "$HDFS_ROOT/B_$SCENARIO" "$m" "$LOG_DIR/${SCENARIO}_${m}_$TS.log"
+
+
 # ==========================================================
 # Group C: 稀疏度敏感性 (Sparsity) - 固定规模 5000
 # 对应生成脚本: run_gen 5000 ... 0.001/0.05/0.1 "Sparsity_X_5000"
 # ==========================================================
-echo "--- Starting Group C: Sparsity Sensitivity (Size=5000) ---"
+echo "--- Starting Group C: Sparsity Sensitivity (Running: naive, broadcast, block) ---"
 Scale="5000"
 
-for m in "block"; do
+for m in "naive" "broadcast" "block"; do
     for sp in "0.001" "0.05" "0.1"; do
         SCENARIO="Sparsity_${sp}_${Scale}"
         run_experiment "$SCENARIO" "$HDFS_ROOT/A_$SCENARIO" "$HDFS_ROOT/B_$SCENARIO" "$m" "$LOG_DIR/${SCENARIO}_${m}_$TS.log"
@@ -105,7 +114,7 @@ done
 # 对应生成脚本: run_gen 50000 ... 0.01 "Scale_0.01_50000"
 # ==========================================================
 # echo "--- Starting Group D: Stress Test (50k) ---"
-# 注意：50k 规模非常大，仅建议使用 block 算法，且可能需要较长时间
+# 注意：50k 规模非常大，Naive/Broadcast 必挂，仅建议测试 Block
 # SCENARIO="Scale_0.01_50000"
 # run_experiment "$SCENARIO" "$HDFS_ROOT/A_$SCENARIO" "$HDFS_ROOT/B_$SCENARIO" "block" "$LOG_DIR/${SCENARIO}_block_$TS.log"
 
