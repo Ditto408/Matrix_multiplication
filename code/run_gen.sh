@@ -2,11 +2,12 @@
 
 # ================= 配置区域 =================
 # 1. 使用纯 Python 生成器
-GEN_CODE="code/datagen.py"
+BASE_DIR="/home/spark/work/Matrix_multiplication"
+GEN_CODE="$BASE_DIR/code/datagen.py"
 
 # 2. 路径配置
 HDFS_ROOT="hdfs://spark-master:9000/input"
-LOCAL_DATA_ROOT="data"
+LOCAL_DATA_ROOT="$BASE_DIR/data"
 
 # ===========================================
 
