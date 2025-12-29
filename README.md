@@ -8,8 +8,10 @@
 │   ├── datagen.py          # [Python] 稀疏/稠密矩阵数据生成脚本
 │   ├── matmul.dml          # [DML] SystemML 矩阵乘法核心脚本
 │   ├── matrix_ed3.py       # [Python] PySpark 矩阵乘法实现 (含 Naive/Broadcast/Block)
+|   |-- MatrixApp.scala     # [Scala] Scala 矩阵乘法实现 (仅 Block)
 │   ├── run_experiments.sh  # [Shell] PySpark 实验自动化运行脚本
 │   ├── run_gen.sh          # [Shell] 数据生成自动化脚本 (Local -> HDFS)
+|   |-- run_scala.sh        # [Shell] Scala 实验自动化运行脚本
 │   └── run_systemml.sh     # [Shell] SystemML 实验自动化运行脚本
 └── README.md               # 项目说明文档
 ```
@@ -110,7 +112,7 @@
     
 - **SystemML 版本**：SystemML 1.2.0
     
-- **程序设计语言环境**：Python 3.5.2 , Numpy, Scipy
+- **程序设计语言环境**：Python 3.5.2, Scala 2.11.12
 
 ### 3.2 实验负载
 
